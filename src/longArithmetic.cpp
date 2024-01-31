@@ -1,10 +1,14 @@
+#include "../include/longNumbers.hpp"
+#include "../include/longArithmetics.hpp"
+
 #include <iostream>
 #include <stdlib.h>
 #include <vector>
 #include <algorithm>
 
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+
+
+
 
 int modules_compare(std::vector<char>& left, std::vector<char>& right, int prec1, int prec2)
 {
@@ -252,203 +256,8 @@ void modules_div(std::vector<char>& left, std::vector<char>& right, int& prec1, 
 
         prec1 = new_prec;
         swap(left, inter_res);
-
-        for (int i=0;i<right_zeros;i++) {right.push_back(0);}
-
     }
 
-}
+    for (int i=0;i<right_zeros;i++) {right.push_back(0);}
 
-
-
-
-
-
-
-
-
-
-
-struct LongNumber
-{
-	bool is_negative;
-	std::vector<char> digits;
-	int precision;
-
-    LongNumber(std::string literal)
-    {
-        is_negative = false;
-        precision = 0;
-
-        int sz = literal.size();
-
-        for (int i=sz-1;i >= 0; i--)
-        {
-            if (literal[i] == '.')
-            {
-                precision = sz - 1 - i;
-            }
-            else if (literal[i] == '-')
-            {
-                is_negative = true;
-            }
-            else
-            {
-                digits.push_back(literal[i] - '0');
-            }
-        }
-    }
-
-    LongNumber() {}
-
-    bool operator ==(LongNumber& ln)
-    {
-        return (modules_compare(digits, ln.digits, precision, ln.precision) == 0);
-    }
-
-    bool operator !=(LongNumber& ln)
-    {
-        return (modules_compare(digits, ln.digits, precision, ln.precision) != 0);
-    }
-
-    bool operator >(LongNumber& ln)
-    {
-        return (modules_compare(digits, ln.digits, precision, ln.precision) == 1);
-    }
-
-    bool operator <(LongNumber& ln)
-    {
-        return (modules_compare(digits, ln.digits, precision, ln.precision) == -1);
-    }
-
-    LongNumber& operator +=(LongNumber& ln)
-    {
-        if (is_negative == ln.is_negative)
-        {
-            modules_summ(digits, ln.digits, precision, ln.precision);
-        }
-        else
-        {
-            int cmp = modules_compare(digits, ln.digits, precision, ln.precision);
-            if (cmp != -1)
-            {
-                modules_sub(digits, ln.digits, precision, ln.precision);
-            }
-            else
-            {
-                std::vector<char> copy = ln.digits;
-                modules_sub(copy, digits, ln.precision, precision);
-                swap(digits, copy);
-                is_negative = ~is_negative;
-            }
-        }
-        return *this;
-    }
-
-    LongNumber& operator -=(LongNumber& ln)
-    {
-        if (is_negative != ln.is_negative)
-        {
-            modules_summ(digits, ln.digits, precision, ln.precision);
-        }
-        else
-        {
-            int cmp = modules_compare(digits, ln.digits, precision, ln.precision);
-            if (cmp != -1)
-            {
-                modules_sub(digits, ln.digits, precision, ln.precision);
-            }
-            else
-            {
-                std::vector<char> copy = ln.digits;
-                int prec_copy = ln.precision;
-                modules_sub(copy, digits, prec_copy, precision);
-                swap(digits, copy);
-                std::swap(prec_copy, precision);
-                is_negative = ~is_negative;
-            }
-        }
-        return *this;
-    }
-
-    LongNumber& operator *=(LongNumber& ln)
-    {
-        modules_mult(digits, ln.digits, precision, ln.precision);
-        is_negative = not (is_negative == ln.is_negative);
-        return *this;
-    }
-
-    LongNumber& operator /=(LongNumber& ln)
-    {
-        modules_div(digits, ln.digits, precision, ln.precision);
-        is_negative = not (is_negative == ln.is_negative);
-        return *this;
-    }
-
-    LongNumber operator =(LongNumber& ln)
-    {
-        LongNumber copy;
-        copy.digits = ln.digits;
-        copy.is_negative = ln.is_negative;
-        copy.precision = ln.precision;
-        return copy; 
-    }
-
-    LongNumber operator +(LongNumber& ln)
-    {
-        LongNumber copy = *this;
-        copy += ln;
-        return copy; 
-    }
-
-    LongNumber operator -(LongNumber& ln)
-    {
-        LongNumber copy = *this;
-        copy -= ln;
-        return copy; 
-    }
-
-    LongNumber operator *(LongNumber& ln)
-    {
-        LongNumber copy = *this;
-        copy *= ln;
-        return copy;
-    }
-
-    LongNumber operator /(LongNumber& ln)
-    {
-        LongNumber copy = *this;
-        copy /= ln;
-        return copy;
-    }
-
-};
-
-std::ostream& operator <<(std::ostream& os, const LongNumber& ln)
-{
-    if (ln.is_negative)
-    {
-        os << "-";
-    }
-    for (int i=ln.digits.size() - 1; i>=0; i--)
-    {
-        os << static_cast<int>(ln.digits[i]);
-        if (ln.precision && i == ln.precision) {std::cout << ".";}
-    }
-    return os;
-}
-
-
-
-int main()
-{
-
-    LongNumber ln1 = LongNumber("355.0000000");
-    LongNumber ln2 = LongNumber("113");
-
-    LongNumber ln3 = ln1 / ln2;
-
-    std::cout << ln1 << " " << ln2 << " " << ln3;
-
-	return 0;
 }
