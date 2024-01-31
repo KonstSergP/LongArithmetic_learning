@@ -1,11 +1,12 @@
 #include <iostream>
 #include <stdlib.h>
 #include <vector>
+#include <algorithm>
 
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
-int modules_compare(std::vector<char>& left, std::vector<char>& right, int& prec1, int& prec2)
+int modules_compare(std::vector<char>& left, std::vector<char>& right, int prec1, int prec2)
 {
     if (left.size()-prec1 > right.size()-prec2)
     {
@@ -32,7 +33,7 @@ int modules_compare(std::vector<char>& left, std::vector<char>& right, int& prec
         }
         if (left.size() == right.size()) {return 0;}
         std::vector<char>& longer = (left.size() > right.size()) ? (left) : (right);
-        for (int i = MAX(delta_prec1, delta_prec2); i >= 0; i--)
+        for (int i = MAX(delta_prec1, delta_prec2) - 1; i >= 0; i--)
         {
             if (longer[i] != 0)
             {
@@ -51,22 +52,36 @@ void delete_first_zeros(std::vector<char>& array, int prec)
     }
 }
 
+void set_precision(std::vector<char>& left, int& prec1, int prec2)
+{
+    int delta_prec = prec2 - prec1;
+    std::vector<char> new_left(left.size() + delta_prec, 0);
+    if (delta_prec >= 0)
+    {
+        for (int i=delta_prec; i<new_left.size(); i++)
+        {
+            new_left[i] = left[i - delta_prec];
+        } 
+    }
+    else
+    {
+        for (int i=-delta_prec; i < left.size(); i++)
+        {
+            new_left[i + delta_prec] = left[i];
+        }
+    }
+    prec1 = prec2;
+    swap(left, new_left);
+}
+
 void modules_summ(std::vector<char>& left, std::vector<char>& right, int& prec1, int& prec2)
 {
     int rt_size = right.size();
     int lt_size = left.size();
+
     if (prec1 < prec2)
     {
-        int delta_prec = prec2 - prec1;
-        std::vector<char> new_left(left.size() + delta_prec, 0);
-        for (int i=delta_prec; i<new_left.size(); i++)
-        {
-            new_left[i] = left[i - delta_prec];
-        }
-        prec1 = prec2;
-
-        swap(left, new_left);
-
+        set_precision(left, prec1, prec2);
     }
     if (left.capacity() - prec1 <= rt_size - prec2)
     {
@@ -103,16 +118,7 @@ void modules_sub(std::vector<char>& left, std::vector<char>& right, int& prec1, 
     int lt_size = left.size();
     if (prec1 < prec2)
     {
-        int delta_prec = prec2 - prec1;
-        std::vector<char> new_left(left.size() + delta_prec, 0);
-        for (int i=delta_prec; i<new_left.size(); i++)
-        {
-            new_left[i] = left[i - delta_prec];
-        }
-        prec1 = prec2;
-
-        swap(left, new_left);
-
+        set_precision(left, prec1, prec2);
     }
     lt_size = left.size();
 
@@ -167,58 +173,91 @@ void modules_mult(std::vector<char>& left, std::vector<char>& right, int& prec1,
 }
 
 
-/*
-
 void modules_div(std::vector<char>& left, std::vector<char>& right, int& prec1, int& prec2)
 {
-    int max_len = MAX(left_len - right_len + 1, 1);
-    char* inter_res = calloc(max_len, sizeof(char));
-    char* left_copy = malloc(left_len * sizeof(char));
-    CHECK_CONTRACT(inter_res != NULL, "Not enough memory\n");
-    CHECK_CONTRACT(left_copy != NULL, "Not enough memory\n");
-    memccpy(left_copy, left, '?', left_len);
+    std::vector<char> inter_res;
+    
+    int x = prec1;
+    int y = prec2;
+    
+    int right_zeros = 0;
 
-    int left_copy_len = right_len;
+    delete_first_zeros(left, 0);
+    while (right[right.size()-1] == 0) {right.pop_back(); right_zeros++;}
 
-    for (int shift = left_len - right_len; shift >= 0; shift--)
+    int lt_sz = left.size();
+    int rt_sz = right.size();
+
+    int bigger = modules_compare(left, right, 0, 0);
+
+    set_precision(left, prec1, prec1+rt_sz);
+
+    if (bigger >= 0)
     {
-        while (left_copy[shift + left_copy_len - 1] == 0 && left_copy_len > 0)
+        for (int new_rt_prec = -lt_sz; new_rt_prec <= 0; new_rt_prec++)
         {
-            left_copy_len--;
-        }
-        while (arrays_compare(left_copy + shift, right, left_copy_len, right_len) >= 0)
-        {
-            modules_sub(left_copy + shift, left_copy + shift, right, left_copy_len, right_len);
-            inter_res[shift] += 1;
-            while (left_copy[shift + left_copy_len - 1] == 0 && left_copy_len > 0)
+            int new_lt_prec = 0;
+            inter_res.push_back(0);
+            while (modules_compare(left, right, new_lt_prec, new_rt_prec) >= 0)
             {
-                left_copy_len--;
+                modules_sub(left, right, new_lt_prec, new_rt_prec);
+                inter_res[inter_res.size()-1] += 1;
+
             }
         }
-        left_copy_len++;
-    }
+        std::reverse(inter_res.begin(), inter_res.end());
 
-    for (int i = 0; i < max_len; i++)
+        int new_prec = inter_res.size() - (lt_sz - rt_sz) - 1;
+        new_prec += x - y;
+
+        if (new_prec < 0) {set_precision(inter_res, new_prec, 0);}
+        while (new_prec > inter_res.size() - 1)
+        {
+            inter_res.push_back(0);
+        }
+
+        delete_first_zeros(inter_res, new_prec);
+
+        prec1 = new_prec;
+        swap(left, inter_res);
+
+    }
+    else
     {
-        result[i] = inter_res[i];
+        for (int i=0;i<rt_sz-lt_sz;i++) {inter_res.push_back(0);}
+
+        for (int new_rt_prec = -lt_sz; new_rt_prec <= 0; new_rt_prec++)
+        {
+            int new_lt_prec = 0;
+            inter_res.push_back(0);
+            while (modules_compare(left, right, new_lt_prec, new_rt_prec) >= 0)
+            {
+                modules_sub(left, right, new_lt_prec, new_rt_prec);
+                inter_res[inter_res.size()-1] += 1;
+
+            }
+        }
+        std::reverse(inter_res.begin(), inter_res.end());
+
+        int new_prec = inter_res.size() - 1;
+        new_prec += x - y;
+
+        if (new_prec < 0) {set_precision(inter_res, new_prec, 0);}
+        while (new_prec > inter_res.size() - 1)
+        {
+            inter_res.push_back(0);
+        }
+
+        delete_first_zeros(inter_res, new_prec);
+
+        prec1 = new_prec;
+        swap(left, inter_res);
+
+        for (int i=0;i<right_zeros;i++) {right.push_back(0);}
+
     }
-    free(inter_res);
-    free(left_copy);
+
 }
-
-
-*/
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -255,7 +294,7 @@ struct LongNumber
             }
             else
             {
-                digits.push_back(literal[i] - '1' + 1);
+                digits.push_back(literal[i] - '0');
             }
         }
     }
@@ -339,6 +378,13 @@ struct LongNumber
         return *this;
     }
 
+    LongNumber& operator /=(LongNumber& ln)
+    {
+        modules_div(digits, ln.digits, precision, ln.precision);
+        is_negative = not (is_negative == ln.is_negative);
+        return *this;
+    }
+
     LongNumber operator =(LongNumber& ln)
     {
         LongNumber copy;
@@ -369,9 +415,16 @@ struct LongNumber
         return copy;
     }
 
+    LongNumber operator /(LongNumber& ln)
+    {
+        LongNumber copy = *this;
+        copy /= ln;
+        return copy;
+    }
+
 };
 
-std::ostream& operator<<(std::ostream& os, const LongNumber& ln)
+std::ostream& operator <<(std::ostream& os, const LongNumber& ln)
 {
     if (ln.is_negative)
     {
@@ -390,12 +443,12 @@ std::ostream& operator<<(std::ostream& os, const LongNumber& ln)
 int main()
 {
 
-    LongNumber ln1 = LongNumber("1.4");
-    LongNumber ln2 = LongNumber("1.4");
+    LongNumber ln1 = LongNumber("355.0000000");
+    LongNumber ln2 = LongNumber("113");
 
+    LongNumber ln3 = ln1 / ln2;
 
-    LongNumber ln3 = ln1 * ln2;
+    std::cout << ln1 << " " << ln2 << " " << ln3;
 
-    std::cout << ln1 << "\n" << ln2 << "\n" << ln3;
 	return 0;
 }
