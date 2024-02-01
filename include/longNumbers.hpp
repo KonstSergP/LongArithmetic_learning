@@ -63,5 +63,5 @@ LongNumber operator ""_LN(unsigned long long int num);
 LongNumber operator ""_LN(const char* lit, size_t);
 
 
-std::ostream& operator <<(std::ostream& os, LongNumber& ln);
+std::ostream& operator <<(std::ostream& os, LongNumber ln);
 std::string to_string(LongNumber& value);

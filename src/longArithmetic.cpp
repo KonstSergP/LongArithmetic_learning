@@ -7,6 +7,14 @@
 #include <algorithm>
 
 
+bool is_zero(std::vector<char>& array)
+{
+    for (int i=0;i<array.size();i++)
+    {
+        if (array[i] != 0) {return false;}
+    }
+    return true;
+}
 
 
 
@@ -76,6 +84,11 @@ void set_precision(std::vector<char>& left, int& prec1, int prec2)
     }
     prec1 = prec2;
     swap(left, new_left);
+}
+
+void set_precision(LongNumber& ln, int prec)
+{
+    set_precision(ln.digits, ln.precision, prec);
 }
 
 void modules_summ(std::vector<char>& left, std::vector<char>& right, int& prec1, int& prec2)
@@ -179,6 +192,7 @@ void modules_mult(std::vector<char>& left, std::vector<char>& right, int& prec1,
 
 void modules_div(std::vector<char>& left, std::vector<char>& right, int& prec1, int& prec2)
 {
+    if (is_zero(right)) {std::cout << "Zero_division\n"; abort();}
     std::vector<char> inter_res;
     
     int x = prec1;

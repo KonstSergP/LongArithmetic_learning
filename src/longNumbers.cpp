@@ -176,7 +176,7 @@ LongNumber LongNumber::operator -()
 }
 
 
-std::ostream& operator <<(std::ostream& os, LongNumber& ln)
+std::ostream& operator <<(std::ostream& os, LongNumber ln)
 {
     os << to_string(ln);
     return os;

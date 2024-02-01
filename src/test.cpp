@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <vector>
+#include <time.h>
 
 #include "../include/longNumbers.hpp"
 #include "../include/longArithmetics.hpp"
@@ -8,16 +9,19 @@
 
 int main()
 {
-    LongNumber ln1 = 7.0_LN;
-    LongNumber ln2 = "7"_LN;
+    LongNumber res = 0_LN;
+    set_precision(res, 100);
 
-    std::cout << ln1 << " " << ln2 << "\n";
 
-    LongNumber ln3 = ln1 / ln2;
+    LongNumber x = 0.2_LN;
+    set_precision(x, 100);
 
-    std::string ln4 = to_string(ln3);
-
-    std::cout << ln1 << " " << ln2 <<  " " << ln3 << "\n" << ln4;
+    for (int i = 0; i < 10; i++)
+    {
+        x *= x;
+        set_precision(x, 100);
+        std::cout << x << "\n";
+    }
 
 	return 0;
 }
