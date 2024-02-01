@@ -44,8 +44,6 @@ default: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
 	@printf "$(BYELLOW)Linking executable $(BCYAN)$@$(RESET)\n"
-	@printf "$(BYELLOW)Linking executable $(BCYAN)$(SOURCES)$(RESET)\n"
-	@printf "$(BYELLOW)Linking executable $(BCYAN)$(OBJECTS)$(RESET)\n"
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
 
 %.o: src/%.cpp $(INCLUDES)

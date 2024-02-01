@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <algorithm>
+#include <sstream>
 
 
 LongNumber::LongNumber(std::string literal)
@@ -175,22 +176,21 @@ LongNumber LongNumber::operator -()
 }
 
 
-std::ostream& operator <<(std::ostream& os, const LongNumber& ln)
+std::ostream& operator <<(std::ostream& os, LongNumber& ln)
 {
-    if (ln.is_negative)
-    {
-        os << "-";
-    }
-    for (int i=ln.digits.size() - 1; i>=0; i--)
-    {
-        os << static_cast<int>(ln.digits[i]);
-        if (ln.precision && i == ln.precision) {std::cout << ".";}
-    }
+    os << to_string(ln);
     return os;
 }
 
 
 LongNumber operator ""_LN(long double num)
+{
+    std::string str = std::__cxx11::to_string(num); 
+    LongNumber nm = LongNumber(str);
+    return nm;
+}
+
+LongNumber operator ""_LN(unsigned long long int num)
 {
     std::string str = std::__cxx11::to_string(num); 
     LongNumber nm = LongNumber(str);
@@ -231,4 +231,19 @@ LongNumber  LongNumber::operator--(int)    // Postfix
     LongNumber temp = *this;
     --*this;
     return temp;
+}
+
+std::string to_string(LongNumber& value)
+{
+    std::ostringstream os;
+    if (value.is_negative)
+    {
+        os << "-";
+    }
+    for (int i=value.digits.size() - 1; i>=0; i--)
+    {
+        os << static_cast<int>(value.digits[i]);
+        if (value.precision && i == value.precision) {os << ".";}
+    }
+    return os.str();
 }

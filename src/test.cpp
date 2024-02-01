@@ -8,14 +8,16 @@
 
 int main()
 {
-    LongNumber ln1 = 10.0005_LN;
-    LongNumber ln2 = "0.001224355645"_LN;
+    LongNumber ln1 = 7.0_LN;
+    LongNumber ln2 = "7"_LN;
 
     std::cout << ln1 << " " << ln2 << "\n";
 
-    ln1--;
+    LongNumber ln3 = ln1 / ln2;
 
-    std::cout << ln1 << " " << ln2 << "\n";
+    std::string ln4 = to_string(ln3);
+
+    std::cout << ln1 << " " << ln2 <<  " " << ln3 << "\n" << ln4;
 
 	return 0;
 }
