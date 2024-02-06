@@ -1,15 +1,36 @@
 
-CC = g++
+#-----------------------
+# Compiler/linker flags
+#-----------------------
+
+CXX = g++
 
 # Compiler flags:
-CFLAGS = \
+CXXFLAGS = \
 	-std=c++17 \
 	-Wall      \
 	-Wextra    \
 	-Werror
 
+# Linker flags:
+# LDFLAGS =
 
-# Color codes:
+# Select build mode:
+# NOTE: invoke with "DEBUG=1 make" or "make DEBUG=1".
+ifeq ($(DEBUG),1)
+	# Add default symbols:
+	CXXFLAGS += -g
+else
+	# Enable link-time optimization:
+	CXXFLAGS  += -flto
+	LDFLAGS += -flto
+endif
+
+#--------
+# Colors
+#--------
+
+# Use ANSI color codes:
 BRED    = \033[1;31m
 BGREEN  = \033[1;32m
 BYELLOW = \033[1;33m
@@ -21,36 +42,44 @@ RESET   = \033[0m
 # Files
 #-------
 
-INCLUDES = include/longArithmetic.hpp include/longNumbers.hpp
+OBJDIR = ./build
+
+
+INCLUDES = \
+	include/longArithmetic.hpp  \
+	include/longNumbers.hpp
 
 # Add "include" folder to header search path:
-CFLAGS += -I $(abspath include)
+CXXFLAGS += -I $(abspath include)
 
-VPATH = src
 
-# List of sources:
-SOURCES = longNumbers.cpp longArithmetic.cpp test.cpp
+SOURCES = $(wildcard *.cpp) $(wildcard */*.cpp) $(wildcard */*/*.cpp)
 
-OBJECTS = longNumbers.o longArithmetic.o test.o
+VPATH = $(dir $(SOURCES))
 
-EXECUTABLE = test
+OBJECTS := $(notdir $(SOURCES))
+OBJECTS := $(patsubst %.cpp,$(OBJDIR)/%.o,$(OBJECTS))
+
+EXECUTABLE = build/test
 
 #---------------
 # Build process
 #---------------
 
 default: $(EXECUTABLE)
-
+#	@echo $(OBJECTS) $(SOURCES)
 
 $(EXECUTABLE): $(OBJECTS)
 	@printf "$(BYELLOW)Linking executable $(BCYAN)$@$(RESET)\n"
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+	$(CXX) $(LDFLAGS) $(OBJECTS) -o $@
 
-%.o: src/%.cpp $(INCLUDES)
+
+
+#$(filter PATTERN...,SOURCES)
+$(OBJDIR)/%.o: %.cpp
 	@printf "$(BYELLOW)Building object file $(BCYAN)$@$(RESET)\n"
 	@mkdir -p build
-	$(CC) -c $< $(CFLAGS) -o build/$@
-
+	$(CXX) -c $< $(CXXFLAGS) -o $@
 
 #--------------
 # Test scripts
@@ -61,11 +90,11 @@ run: $(EXECUTABLE)
 	./$(EXECUTABLE)
 
 #---------------
-# Other utils
+# Other tools
 #---------------
 
 clean:
-	@printf "$(BYELLOW)Cleaning build and resource directories$(RESET)\n"
+	@printf "$(BYELLOW)Cleaning build directory $(RESET)\n"
 	rm -rf build
 
 # List of non-file targets:

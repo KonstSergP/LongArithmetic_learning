@@ -7,9 +7,10 @@
 #include <algorithm>
 
 
-bool is_zero(std::vector<char>& array)
-{
-    for (int i=0;i<array.size();i++)
+bool is_zero(const std::vector<char>& array)
+{   
+    int sz = array.size();
+    for (int i=0;i<sz;i++)
     {
         if (array[i] != 0) {return false;}
     }
@@ -18,7 +19,7 @@ bool is_zero(std::vector<char>& array)
 
 
 
-int modules_compare(std::vector<char>& left, std::vector<char>& right, int prec1, int prec2)
+int modules_compare(const std::vector<char>& left, const std::vector<char>& right, const int prec1, const int prec2)
 {
     if (left.size()-prec1 > right.size()-prec2)
     {
@@ -44,7 +45,7 @@ int modules_compare(std::vector<char>& left, std::vector<char>& right, int prec1
             }
         }
         if (left.size() == right.size()) {return 0;}
-        std::vector<char>& longer = (left.size() > right.size()) ? (left) : (right);
+        const std::vector<char>& longer = (left.size() > right.size()) ? (left) : (right);
         for (int i = MAX(delta_prec1, delta_prec2) - 1; i >= 0; i--)
         {
             if (longer[i] != 0)
@@ -58,7 +59,7 @@ int modules_compare(std::vector<char>& left, std::vector<char>& right, int prec1
 
 void delete_first_zeros(std::vector<char>& array, int prec)
 {
-    while (array[array.size()-1] == 0 && array.size() > prec + 1)
+    while (array.back() == 0 && static_cast<int>(array.size()) > prec + 1)
     {
         array.pop_back();
     }
@@ -70,14 +71,14 @@ void set_precision(std::vector<char>& left, int& prec1, int prec2)
     std::vector<char> new_left(left.size() + delta_prec, 0);
     if (delta_prec >= 0)
     {
-        for (int i=delta_prec; i<new_left.size(); i++)
+        for (int i=delta_prec; i < static_cast<int>(new_left.size()); i++)
         {
             new_left[i] = left[i - delta_prec];
         } 
     }
     else
     {
-        for (int i=-delta_prec; i < left.size(); i++)
+        for (int i=-delta_prec; i < static_cast<int>(left.size()); i++)
         {
             new_left[i + delta_prec] = left[i];
         }
@@ -91,7 +92,7 @@ void set_precision(LongNumber& ln, int prec)
     set_precision(ln.digits, ln.precision, prec);
 }
 
-void modules_summ(std::vector<char>& left, std::vector<char>& right, int& prec1, int& prec2)
+void modules_summ(std::vector<char>& left, const std::vector<char>& right, int& prec1, const int& prec2)
 {
     int rt_size = right.size();
     int lt_size = left.size();
@@ -100,7 +101,7 @@ void modules_summ(std::vector<char>& left, std::vector<char>& right, int& prec1,
     {
         set_precision(left, prec1, prec2);
     }
-    if (left.capacity() - prec1 <= rt_size - prec2)
+    if (static_cast<int>(left.capacity()) - prec1 <= rt_size - prec2)
     {
         left.resize(prec1 + (rt_size-  prec2) + 1);
     }
@@ -129,7 +130,7 @@ void modules_summ(std::vector<char>& left, std::vector<char>& right, int& prec1,
 }
 
 
-void modules_sub(std::vector<char>& left, std::vector<char>& right, int& prec1, int& prec2)
+void modules_sub(std::vector<char>& left, const std::vector<char>& right, int& prec1, const int& prec2)
 {
     int rt_size = right.size();
     int lt_size = left.size();
@@ -156,7 +157,7 @@ void modules_sub(std::vector<char>& left, std::vector<char>& right, int& prec1, 
 }
 
 
-void modules_mult(std::vector<char>& left, std::vector<char>& right, int& prec1, int& prec2)
+void modules_mult(std::vector<char>& left, const std::vector<char>& right, int& prec1, const int& prec2)
 {
     int left_sz = left.size();
     int right_sz = right.size();
@@ -190,23 +191,24 @@ void modules_mult(std::vector<char>& left, std::vector<char>& right, int& prec1,
 }
 
 
-void modules_div(std::vector<char>& left, std::vector<char>& right, int& prec1, int& prec2)
+void modules_div(std::vector<char>& left, const std::vector<char>& right, int& prec1, const int& prec2)
 {
     if (is_zero(right)) {std::cout << "Zero_division\n"; abort();}
     std::vector<char> inter_res;
     
     int x = prec1;
     int y = prec2;
-    
     int right_zeros = 0;
 
+    std::vector<char> right_copy = right;    
+
     delete_first_zeros(left, 0);
-    while (right[right.size()-1] == 0) {right.pop_back(); right_zeros++;}
+    while (right_copy.back() == 0) {right_copy.pop_back(); right_zeros++;}
 
     int lt_sz = left.size();
-    int rt_sz = right.size();
+    int rt_sz = right_copy.size();
 
-    int bigger = modules_compare(left, right, 0, 0);
+    int bigger = modules_compare(left, right_copy, 0, 0);
 
     set_precision(left, prec1, prec1+rt_sz);
 
@@ -216,9 +218,9 @@ void modules_div(std::vector<char>& left, std::vector<char>& right, int& prec1, 
         {
             int new_lt_prec = 0;
             inter_res.push_back(0);
-            while (modules_compare(left, right, new_lt_prec, new_rt_prec) >= 0)
+            while (modules_compare(left, right_copy, new_lt_prec, new_rt_prec) >= 0)
             {
-                modules_sub(left, right, new_lt_prec, new_rt_prec);
+                modules_sub(left, right_copy, new_lt_prec, new_rt_prec);
                 inter_res[inter_res.size()-1] += 1;
 
             }
@@ -229,7 +231,7 @@ void modules_div(std::vector<char>& left, std::vector<char>& right, int& prec1, 
         new_prec += x - y;
 
         if (new_prec < 0) {set_precision(inter_res, new_prec, 0);}
-        while (new_prec > inter_res.size() - 1)
+        while (new_prec > static_cast<int>(inter_res.size()) - 1)
         {
             inter_res.push_back(0);
         }
@@ -248,9 +250,9 @@ void modules_div(std::vector<char>& left, std::vector<char>& right, int& prec1, 
         {
             int new_lt_prec = 0;
             inter_res.push_back(0);
-            while (modules_compare(left, right, new_lt_prec, new_rt_prec) >= 0)
+            while (modules_compare(left, right_copy, new_lt_prec, new_rt_prec) >= 0)
             {
-                modules_sub(left, right, new_lt_prec, new_rt_prec);
+                modules_sub(left, right_copy, new_lt_prec, new_rt_prec);
                 inter_res[inter_res.size()-1] += 1;
 
             }
@@ -261,7 +263,7 @@ void modules_div(std::vector<char>& left, std::vector<char>& right, int& prec1, 
         new_prec += x - y;
 
         if (new_prec < 0) {set_precision(inter_res, new_prec, 0);}
-        while (new_prec > inter_res.size() - 1)
+        while (new_prec > static_cast<int>(inter_res.size()) - 1)
         {
             inter_res.push_back(0);
         }
@@ -271,7 +273,5 @@ void modules_div(std::vector<char>& left, std::vector<char>& right, int& prec1, 
         prec1 = new_prec;
         swap(left, inter_res);
     }
-
-    for (int i=0;i<right_zeros;i++) {right.push_back(0);}
 
 }

@@ -8,6 +8,13 @@
 #include <sstream>
 
 
+LongNumber::LongNumber(const LongNumber& ln)
+{
+    digits = ln.digits;
+    is_negative = ln.is_negative;
+    precision = ln.precision;
+}
+
 LongNumber::LongNumber(std::string literal)
 {
     is_negative = false;
@@ -30,38 +37,50 @@ LongNumber::LongNumber(std::string literal)
     }
 }
 
+LongNumber::LongNumber(const char* lit): LongNumber(std::string(lit)) {}
 
-bool LongNumber::operator ==(LongNumber& ln)
+LongNumber::LongNumber(long long int num): LongNumber(std::__cxx11::to_string(num)) {}
+
+
+bool LongNumber::operator ==(const LongNumber& ln) const
 {
-    return (modules_compare(digits, ln.digits, precision, ln.precision) == 0);
+    return (modules_compare(digits, ln.digits, precision, ln.precision) == 0) && (is_negative == ln.is_negative);
 }
 
-bool LongNumber::operator !=(LongNumber& ln)
+bool LongNumber::operator !=(const LongNumber& ln) const
 {
-    return (modules_compare(digits, ln.digits, precision, ln.precision) != 0);
+    return (modules_compare(digits, ln.digits, precision, ln.precision) != 0) || (is_negative != ln.is_negative);
 }
 
-bool LongNumber::operator >(LongNumber& ln)
-{
-    return (modules_compare(digits, ln.digits, precision, ln.precision) == 1);
+bool LongNumber::operator >(const LongNumber& ln) const
+{   
+    if (is_negative != ln.is_negative) {return not is_negative;}
+    return (modules_compare(digits, ln.digits, precision, ln.precision) == 1) ^ is_negative;
 }
 
-bool LongNumber::operator <(LongNumber& ln)
+bool LongNumber::operator <(const LongNumber& ln) const
 {
-    return (modules_compare(digits, ln.digits, precision, ln.precision) == -1);
+    if (is_negative != ln.is_negative) {return is_negative;}
+    return (modules_compare(digits, ln.digits, precision, ln.precision) == -1) ^ is_negative;
 }
 
-bool LongNumber::operator <=(LongNumber& ln)
+bool LongNumber::operator <=(const LongNumber& ln) const
 {
-    return (modules_compare(digits, ln.digits, precision, ln.precision) != 1);
+    if (is_negative != ln.is_negative) {return is_negative;}
+    int res = modules_compare(digits, ln.digits, precision, ln.precision);
+    if (is_negative) {return res != -1;}
+    return (res != 1);
 }
 
-bool LongNumber::operator >=(LongNumber& ln)
+bool LongNumber::operator >=(const LongNumber& ln) const
 {
-    return (modules_compare(digits, ln.digits, precision, ln.precision) != -1);
+    if (is_negative != ln.is_negative) {return not is_negative;}
+    int res = modules_compare(digits, ln.digits, precision, ln.precision);
+    if (is_negative) {return res != 1;}
+    return (res != -1);
 }
 
-LongNumber& LongNumber::operator +=(LongNumber& ln)
+LongNumber& LongNumber::operator +=(const LongNumber& ln)
 {
     if (is_negative == ln.is_negative)
     {
@@ -77,15 +96,17 @@ LongNumber& LongNumber::operator +=(LongNumber& ln)
         else
         {
             std::vector<char> copy = ln.digits;
-            modules_sub(copy, digits, ln.precision, precision);
+            int prec_copy = ln.precision;
+            modules_sub(copy, digits, prec_copy, precision);
             swap(digits, copy);
-            is_negative = ~is_negative;
+            precision = prec_copy;
+            is_negative = not is_negative;
         }
     }
     return *this;
 }
 
-LongNumber& LongNumber::operator -=(LongNumber& ln)
+LongNumber& LongNumber::operator -=(const LongNumber& ln)
 {
     if (is_negative != ln.is_negative)
     {
@@ -105,57 +126,56 @@ LongNumber& LongNumber::operator -=(LongNumber& ln)
             modules_sub(copy, digits, prec_copy, precision);
             swap(digits, copy);
             std::swap(prec_copy, precision);
-            is_negative = ~is_negative;
+            is_negative = not is_negative;
         }
     }
     return *this;
 }
 
-LongNumber& LongNumber::operator *=(LongNumber& ln)
+LongNumber& LongNumber::operator *=(const LongNumber& ln)
 {
     modules_mult(digits, ln.digits, precision, ln.precision);
-    is_negative = not (is_negative == ln.is_negative);
+    is_negative = (is_negative != ln.is_negative);
     return *this;
 }
 
-LongNumber& LongNumber::operator /=(LongNumber& ln)
+LongNumber& LongNumber::operator /=(const LongNumber& ln)
 {
     modules_div(digits, ln.digits, precision, ln.precision);
-    is_negative = not (is_negative == ln.is_negative);
+    is_negative = (is_negative != ln.is_negative);
     return *this;
 }
 
-LongNumber LongNumber::operator =(LongNumber& ln)
+LongNumber& LongNumber::operator =(const LongNumber& ln)
 {
-    LongNumber copy;
-    copy.digits = ln.digits;
-    copy.is_negative = ln.is_negative;
-    copy.precision = ln.precision;
-    return copy; 
+    digits = ln.digits;
+    is_negative = ln.is_negative;
+    precision = ln.precision;
+    return *this; 
 }
 
-LongNumber LongNumber::operator +(LongNumber& ln)
+LongNumber LongNumber::operator +(const LongNumber& ln) const
 {
     LongNumber copy = *this;
     copy += ln;
-    return copy; 
+    return copy;
 }
 
-LongNumber LongNumber::operator -(LongNumber& ln)
+LongNumber LongNumber::operator -(const LongNumber& ln) const
 {
     LongNumber copy = *this;
     copy -= ln;
     return copy; 
 }
 
-LongNumber LongNumber::operator *(LongNumber& ln)
+LongNumber LongNumber::operator *(const LongNumber& ln) const
 {
     LongNumber copy = *this;
     copy *= ln;
     return copy;
 }
 
-LongNumber LongNumber::operator /(LongNumber& ln)
+LongNumber LongNumber::operator /(const LongNumber& ln) const
 {
     LongNumber copy = *this;
     copy /= ln;
@@ -171,12 +191,12 @@ LongNumber LongNumber::operator +()
 LongNumber LongNumber::operator -()
 {
     LongNumber copy = *this;
-    copy.is_negative = ~copy.is_negative;
+    copy.is_negative = not copy.is_negative;
     return copy; 
 }
 
 
-std::ostream& operator <<(std::ostream& os, LongNumber ln)
+std::ostream& operator <<(std::ostream& os, const LongNumber& ln)
 {
     os << to_string(ln);
     return os;
@@ -233,7 +253,7 @@ LongNumber  LongNumber::operator--(int)    // Postfix
     return temp;
 }
 
-std::string to_string(LongNumber& value)
+std::string to_string(const LongNumber& value)
 {
     std::ostringstream os;
     if (value.is_negative)
@@ -246,4 +266,38 @@ std::string to_string(LongNumber& value)
         if (value.precision && i == value.precision) {os << ".";}
     }
     return os.str();
+}
+
+//WORK IN PROGRESS
+LongNumber square_root(const LongNumber& num)
+{
+    int prec = num.precision;
+    LongNumber number = num;
+
+    set_precision(number, prec + 10);
+
+    LongNumber two = "2";
+
+    LongNumber x = number / two;
+
+    LongNumber s_div_x = x, next_x = x;
+
+    int cnt = 0;
+    int lng = number.digits.size() + 20;
+    while (lng) { cnt++; lng /= 2;}
+    cnt *= 4;
+
+    for (int i = 0; i < cnt; i++)
+    {
+        s_div_x = number / x;
+
+        next_x = (x + s_div_x) / two;
+
+        x = next_x;
+
+        set_precision(x, prec + 10);
+
+    }
+
+    return x;
 }

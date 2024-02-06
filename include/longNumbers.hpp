@@ -12,39 +12,45 @@ struct LongNumber
 	std::vector<char> digits;
 	int precision;
 
+    LongNumber(const LongNumber& ln);
+
     LongNumber(std::string literal);
+
+    LongNumber(const char* lit);
+
+    LongNumber(long long int num);
 
     LongNumber() {}
 
-    bool operator ==(LongNumber& ln);
+    bool operator ==(const LongNumber& ln) const;
 
-    bool operator !=(LongNumber& ln);
+    bool operator !=(const LongNumber& ln) const;
 
-    bool operator >(LongNumber& ln);
+    bool operator >(const LongNumber& ln) const;
 
-    bool operator <(LongNumber& ln);
+    bool operator <(const LongNumber& ln) const;
 
-    bool operator >=(LongNumber& ln);
+    bool operator >=(const LongNumber& ln) const;
 
-    bool operator <=(LongNumber& ln);
+    bool operator <=(const LongNumber& ln) const;
 
-    LongNumber& operator +=(LongNumber& ln);
+    LongNumber& operator +=(const LongNumber& ln);
 
-    LongNumber& operator -=(LongNumber& ln);
+    LongNumber& operator -=(const LongNumber& ln);
 
-    LongNumber& operator *=(LongNumber& ln);
+    LongNumber& operator *=(const LongNumber& ln);
 
-    LongNumber& operator /=(LongNumber& ln);
+    LongNumber& operator /=(const LongNumber& ln);
 
-    LongNumber operator =(LongNumber& ln);
+    LongNumber& operator =(const LongNumber& ln);
 
-    LongNumber operator +(LongNumber& ln);
+    LongNumber operator +(const LongNumber& ln) const;
 
-    LongNumber operator -(LongNumber& ln);
+    LongNumber operator -(const LongNumber& ln) const;
 
-    LongNumber operator *(LongNumber& ln);
+    LongNumber operator *(const LongNumber& ln) const;
 
-    LongNumber operator /(LongNumber& ln);
+    LongNumber operator /(const LongNumber& ln) const;
 
     LongNumber operator +();
 
@@ -63,5 +69,7 @@ LongNumber operator ""_LN(unsigned long long int num);
 LongNumber operator ""_LN(const char* lit, size_t);
 
 
-std::ostream& operator <<(std::ostream& os, LongNumber ln);
-std::string to_string(LongNumber& value);
+std::ostream& operator <<(std::ostream& os, const LongNumber& ln);
+std::string to_string(const LongNumber& value);
+
+LongNumber square_root(const LongNumber& num);
