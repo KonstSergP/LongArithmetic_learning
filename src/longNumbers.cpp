@@ -313,7 +313,6 @@ void calc_split(int a, int b, LongNumber& Pab, LongNumber& Qab, LongNumber& Rab)
 {
     LongNumber Pam = "0", Qam = "0", Ram = "0";
     LongNumber Pmb = "0", Qmb = "0", Rmb = "0";
-    std::cout << a << " " << b << "\n";
     if (b == a + 1)
     {   
         LongNumber six = "6", five = "5", two = "2", one = "1", la = LongNumber(a);
@@ -337,7 +336,7 @@ void calc_split(int a, int b, LongNumber& Pab, LongNumber& Qab, LongNumber& Rab)
 LongNumber calculate_pi(int precision)
 {
     LongNumber P1n = "0", Q1n = "0", R1n = "0";
-    calc_split(1, precision / 10, P1n, Q1n, R1n);
+    calc_split(1, precision / 10 + 2, P1n, Q1n, R1n);
     LongNumber rt = "10005";
     set_precision(rt, precision + 10);
     rt = square_root(rt);

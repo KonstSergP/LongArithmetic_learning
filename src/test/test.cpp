@@ -3,8 +3,8 @@
 #include <vector>
 #include <time.h>
 
-#include "../include/longNumbers.hpp"
-#include "longArithmetic/longArithmetic.hpp"
+#include "../../include/longNumbers.hpp"
+#include "../longArithmetic/longArithmetic.hpp"
 
 
 
@@ -12,7 +12,7 @@ int main()
 {
     clock_t t1 = clock();
 
-    LongNumber res = calculate_pi(100);
+    LongNumber res = calculate_pi(950);
 
     std::cout << res << "\n";
 
@@ -20,7 +20,7 @@ int main()
 
     double tm = (double)(t2 - t1) / CLOCKS_PER_SEC;
 
-    std::cout << tm << "\n";
+    std::cout << "Time: " << tm << "\n";
 
 
 	return 0;

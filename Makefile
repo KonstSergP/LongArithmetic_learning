@@ -10,7 +10,8 @@ CXXFLAGS = \
 	-std=c++17 \
 	-Wall      \
 	-Wextra    \
-	-Werror
+	-Werror    \
+	-O2
 
 # Linker flags:
 # LDFLAGS =
