@@ -1,5 +1,5 @@
 #include "../include/longNumbers.hpp"
-#include "../include/longArithmetics.hpp"
+#include "longArithmetic/longArithmetic.hpp"
 
 #include <iostream>
 #include <stdlib.h>
@@ -300,4 +300,52 @@ LongNumber square_root(const LongNumber& num)
     }
 
     return x;
+}
+
+
+void set_precision(LongNumber& ln, int prec)
+{
+    set_precision(ln.digits, ln.precision, prec);
+}
+
+
+void calc_split(int a, int b, LongNumber& Pab, LongNumber& Qab, LongNumber& Rab)
+{
+    LongNumber Pam = "0", Qam = "0", Ram = "0";
+    LongNumber Pmb = "0", Qmb = "0", Rmb = "0";
+    std::cout << a << " " << b << "\n";
+    if (b == a + 1)
+    {   
+        LongNumber six = "6", five = "5", two = "2", one = "1", la = LongNumber(a);
+        Pab = -(six*la - five)*(two*la - one)*(six*la - one);
+        Qab = "10939058860032000"_LN * (a * a * a);
+        Rab = Pab * ("545140134"_LN*a + "13591409"_LN);
+    }
+    else
+    {
+        int m = (a + b) / 2;
+        calc_split(a, m, Pam, Qam, Ram);
+        calc_split(m, b, Pmb, Qmb, Rmb);
+        
+        Pab = Pam * Pmb;
+        Qab = Qam * Qmb;
+        Rab = Qmb * Ram + Pam * Rmb;
+    }
+}
+
+
+LongNumber calculate_pi(int precision)
+{
+    LongNumber P1n = "0", Q1n = "0", R1n = "0";
+    calc_split(1, precision / 10, P1n, Q1n, R1n);
+    LongNumber rt = "10005";
+    set_precision(rt, precision + 10);
+    rt = square_root(rt);
+
+    LongNumber num1 = "426880", num2 = "13591409";
+
+    LongNumber pi = (num1 * rt * Q1n) / (num2*Q1n + R1n);
+    set_precision(pi, precision);
+
+    return pi;
 }

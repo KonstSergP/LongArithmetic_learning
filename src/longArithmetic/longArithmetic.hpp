@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "../../include/longNumbers.hpp"
 
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
@@ -14,7 +15,6 @@ void delete_first_zeros(std::vector<char>& array, int prec);
 
 // Change the precision of number prec2 > prec1: add zeros, prec1 >= prec2: remove extra digits
 void set_precision(std::vector<char>& left, int& prec1, int prec2);
-void set_precision(LongNumber& ln, int prec);
 
 // 1 - bigger, 0 - equal, -1 - smaller
 int modules_compare(const std::vector<char>& left, const std::vector<char>& right, const int prec1, const int prec2);
@@ -28,11 +28,8 @@ void modules_sub   (std::vector<char>& left, const std::vector<char>& right, int
 // Multyply left by right
 void modules_mult  (std::vector<char>& left, const std::vector<char>& right, int& prec1, const int& prec2);
 
-
-// WORK IN PROGRESS
-// 1)Division by itself
-// 2)Presicion of result
-// 3)Less code
 // Divide left by right
 void modules_div   (std::vector<char>& left, const std::vector<char>& right, int& prec1, const int& prec2);
 // WORK IN PROGRESS
+// 1)Presicion of result
+// 2)Less code

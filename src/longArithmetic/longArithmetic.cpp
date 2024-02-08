@@ -1,5 +1,5 @@
-#include "../include/longNumbers.hpp"
-#include "../include/longArithmetics.hpp"
+#include "../../include/longNumbers.hpp"
+#include "longArithmetic.hpp"
 
 #include <iostream>
 #include <stdlib.h>
@@ -87,10 +87,6 @@ void set_precision(std::vector<char>& left, int& prec1, int prec2)
     swap(left, new_left);
 }
 
-void set_precision(LongNumber& ln, int prec)
-{
-    set_precision(ln.digits, ln.precision, prec);
-}
 
 void modules_summ(std::vector<char>& left, const std::vector<char>& right, int& prec1, const int& prec2)
 {

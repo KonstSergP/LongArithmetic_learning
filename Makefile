@@ -16,12 +16,9 @@ CXXFLAGS = \
 # LDFLAGS =
 
 # Select build mode:
-# NOTE: invoke with "DEBUG=1 make" or "make DEBUG=1".
 ifeq ($(DEBUG),1)
-	# Add default symbols:
 	CXXFLAGS += -g
 else
-	# Enable link-time optimization:
 	CXXFLAGS  += -flto
 	LDFLAGS += -flto
 endif
@@ -42,21 +39,17 @@ RESET   = \033[0m
 # Files
 #-------
 
-OBJDIR = ./build
-
-
-INCLUDES = \
-	include/longArithmetic.hpp  \
-	include/longNumbers.hpp
 
 # Add "include" folder to header search path:
-CXXFLAGS += -I $(abspath include)
+#CXXFLAGS += -I $(abspath include)
 
+INCLUDES = $(wildcard *.hpp) $(wildcard */*.hpp) $(wildcard */*/*.hpp)
 
 SOURCES = $(wildcard *.cpp) $(wildcard */*.cpp) $(wildcard */*/*.cpp)
 
 VPATH = $(dir $(SOURCES))
 
+OBJDIR = ./build
 OBJECTS := $(notdir $(SOURCES))
 OBJECTS := $(patsubst %.cpp,$(OBJDIR)/%.o,$(OBJECTS))
 
@@ -67,16 +60,13 @@ EXECUTABLE = build/test
 #---------------
 
 default: $(EXECUTABLE)
-#	@echo $(OBJECTS) $(SOURCES)
 
 $(EXECUTABLE): $(OBJECTS)
 	@printf "$(BYELLOW)Linking executable $(BCYAN)$@$(RESET)\n"
 	$(CXX) $(LDFLAGS) $(OBJECTS) -o $@
 
 
-
-#$(filter PATTERN...,SOURCES)
-$(OBJDIR)/%.o: %.cpp
+$(OBJDIR)/%.o: %.cpp $(INCLUDES) Makefile
 	@printf "$(BYELLOW)Building object file $(BCYAN)$@$(RESET)\n"
 	@mkdir -p build
 	$(CXX) -c $< $(CXXFLAGS) -o $@

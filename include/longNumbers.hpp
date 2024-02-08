@@ -4,14 +4,21 @@
 #include <stdlib.h>
 #include <vector>
 #include <algorithm>
+#include "../src/longArithmetic/longArithmetic.hpp"
 
 
 struct LongNumber
 {
+private:
 	bool is_negative;
 	std::vector<char> digits;
 	int precision;
 
+    friend std::string to_string(const LongNumber& value);
+    friend LongNumber square_root(const LongNumber& num);
+    friend void set_precision(LongNumber& ln, int prec);
+
+public:
     LongNumber(const LongNumber& ln);
 
     LongNumber(std::string literal);
@@ -72,4 +79,8 @@ LongNumber operator ""_LN(const char* lit, size_t);
 std::ostream& operator <<(std::ostream& os, const LongNumber& ln);
 std::string to_string(const LongNumber& value);
 
+// Get a square root of a number
 LongNumber square_root(const LongNumber& num);
+//WORK IN PROGRESS
+
+LongNumber calculate_pi(int precision);
