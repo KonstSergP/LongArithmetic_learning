@@ -18,7 +18,6 @@ bool is_zero(const std::vector<char>& array)
 }
 
 
-
 int modules_compare(const std::vector<char>& left, const std::vector<char>& right, const int prec1, const int prec2)
 {
     if (left.size()-prec1 > right.size()-prec2)
@@ -67,6 +66,7 @@ void delete_first_zeros(std::vector<char>& array, int prec)
 
 void set_precision(std::vector<char>& left, int& prec1, int prec2)
 {
+    if (prec1 == prec2) {return;}
     int delta_prec = prec2 - prec1;
     std::vector<char> new_left(left.size() + delta_prec, 0);
     if (delta_prec >= 0)
@@ -190,6 +190,7 @@ void modules_mult(std::vector<char>& left, const std::vector<char>& right, int& 
 void modules_div(std::vector<char>& left, const std::vector<char>& right, int& prec1, const int& prec2)
 {
     if (is_zero(right)) {std::cout << "Zero_division\n"; abort();}
+    if (is_zero(left))  {set_precision(left, prec1, MAX(prec1, prec2)); return;}
     std::vector<char> inter_res;
     
     int x = prec1;

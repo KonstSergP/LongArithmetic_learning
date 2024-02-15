@@ -35,12 +35,14 @@ LongNumber::LongNumber(std::string literal)
             digits.push_back(literal[i] - '0');
         }
     }
+    if (is_zero(digits)) {is_negative = false;}
 }
 
 LongNumber::LongNumber(const char* lit): LongNumber(std::string(lit)) {}
 
-LongNumber::LongNumber(long long int num): LongNumber(std::__cxx11::to_string(num)) {}
+//LongNumber::LongNumber(long long int num): LongNumber(std::__cxx11::to_string(num)) {}
 
+LongNumber::LongNumber(long double num): LongNumber(std::__cxx11::to_string(num)) {}
 
 bool LongNumber::operator ==(const LongNumber& ln) const
 {
@@ -103,6 +105,9 @@ LongNumber& LongNumber::operator +=(const LongNumber& ln)
             is_negative = not is_negative;
         }
     }
+
+    if (is_zero(digits)) {is_negative = false;}
+
     return *this;
 }
 
@@ -129,6 +134,9 @@ LongNumber& LongNumber::operator -=(const LongNumber& ln)
             is_negative = not is_negative;
         }
     }
+
+    if (is_zero(digits)) {is_negative = false;}
+
     return *this;
 }
 
@@ -136,6 +144,7 @@ LongNumber& LongNumber::operator *=(const LongNumber& ln)
 {
     modules_mult(digits, ln.digits, precision, ln.precision);
     is_negative = (is_negative != ln.is_negative);
+    if (is_zero(digits)) {is_negative = false;}
     return *this;
 }
 
@@ -143,6 +152,7 @@ LongNumber& LongNumber::operator /=(const LongNumber& ln)
 {
     modules_div(digits, ln.digits, precision, ln.precision);
     is_negative = (is_negative != ln.is_negative);
+    if (is_zero(digits)) {is_negative = false;}
     return *this;
 }
 
@@ -192,6 +202,7 @@ LongNumber LongNumber::operator -()
 {
     LongNumber copy = *this;
     copy.is_negative = not copy.is_negative;
+    if (is_zero(copy.digits)) {copy.is_negative = false;}
     return copy; 
 }
 
@@ -205,14 +216,12 @@ std::ostream& operator <<(std::ostream& os, const LongNumber& ln)
 
 LongNumber operator ""_LN(long double num)
 {
-    std::string str = std::__cxx11::to_string(num); 
-    LongNumber nm = LongNumber(str);
-    return nm;
+    return LongNumber(num);
 }
 
 LongNumber operator ""_LN(unsigned long long int num)
 {
-    std::string str = std::__cxx11::to_string(num); 
+    std::string str = std::__cxx11::to_string(num);
     LongNumber nm = LongNumber(str);
     return nm;
 }
@@ -308,43 +317,3 @@ void set_precision(LongNumber& ln, int prec)
     set_precision(ln.digits, ln.precision, prec);
 }
 
-
-void calc_split(int a, int b, LongNumber& Pab, LongNumber& Qab, LongNumber& Rab)
-{
-    LongNumber Pam = "0", Qam = "0", Ram = "0";
-    LongNumber Pmb = "0", Qmb = "0", Rmb = "0";
-    if (b == a + 1)
-    {   
-        LongNumber six = "6", five = "5", two = "2", one = "1", la = LongNumber(a);
-        Pab = -(six*la - five)*(two*la - one)*(six*la - one);
-        Qab = "10939058860032000"_LN * (a * a * a);
-        Rab = Pab * ("545140134"_LN*a + "13591409"_LN);
-    }
-    else
-    {
-        int m = (a + b) / 2;
-        calc_split(a, m, Pam, Qam, Ram);
-        calc_split(m, b, Pmb, Qmb, Rmb);
-        
-        Pab = Pam * Pmb;
-        Qab = Qam * Qmb;
-        Rab = Qmb * Ram + Pam * Rmb;
-    }
-}
-
-
-LongNumber calculate_pi(int precision)
-{
-    LongNumber P1n = "0", Q1n = "0", R1n = "0";
-    calc_split(1, precision / 10 + 2, P1n, Q1n, R1n);
-    LongNumber rt = "10005";
-    set_precision(rt, precision + 10);
-    rt = square_root(rt);
-
-    LongNumber num1 = "426880", num2 = "13591409";
-
-    LongNumber pi = (num1 * rt * Q1n) / (num2*Q1n + R1n);
-    set_precision(pi, precision);
-
-    return pi;
-}

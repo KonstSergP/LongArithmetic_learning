@@ -9,14 +9,14 @@
 
 struct LongNumber
 {
+    friend std::string to_string(const LongNumber& value);
+    friend LongNumber square_root(const LongNumber& num);
+    friend void set_precision(LongNumber& ln, int prec);
+
 private:
 	bool is_negative;
 	std::vector<char> digits;
 	int precision;
-
-    friend std::string to_string(const LongNumber& value);
-    friend LongNumber square_root(const LongNumber& num);
-    friend void set_precision(LongNumber& ln, int prec);
 
 public:
     LongNumber(const LongNumber& ln);
@@ -25,7 +25,7 @@ public:
 
     LongNumber(const char* lit);
 
-    LongNumber(long long int num);
+    LongNumber(long double num);
 
     LongNumber() {}
 
@@ -82,5 +82,3 @@ std::string to_string(const LongNumber& value);
 // Get a square root of a number
 LongNumber square_root(const LongNumber& num);
 //WORK IN PROGRESS
-
-LongNumber calculate_pi(int precision);

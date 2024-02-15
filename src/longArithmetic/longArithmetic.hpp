@@ -30,6 +30,6 @@ void modules_mult  (std::vector<char>& left, const std::vector<char>& right, int
 
 // Divide left by right
 void modules_div   (std::vector<char>& left, const std::vector<char>& right, int& prec1, const int& prec2);
-// WORK IN PROGRESS
+// THINGS TO DO
 // 1)Presicion of result
 // 2)Less code

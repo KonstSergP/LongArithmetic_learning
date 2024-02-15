@@ -10,8 +10,9 @@ CXXFLAGS = \
 	-std=c++17 \
 	-Wall      \
 	-Wextra    \
-	-Werror    \
-	-O2
+	-Werror
+
+DIGITS = 100
 
 # Linker flags:
 # LDFLAGS =
@@ -44,28 +45,29 @@ RESET   = \033[0m
 # Add "include" folder to header search path:
 #CXXFLAGS += -I $(abspath include)
 
-INCLUDES = $(wildcard *.hpp) $(wildcard */*.hpp) $(wildcard */*/*.hpp)
+INCLUDES = $(shell find ./ -name \*.hpp)
 
-SOURCES = $(wildcard *.cpp) $(wildcard */*.cpp) $(wildcard */*/*.cpp)
+SOURCES := $(shell find ./src -name \*.cpp)
 
-VPATH = $(dir $(SOURCES))
+VPATH := $(dir $(SOURCES))
 
-OBJDIR = ./build
-OBJECTS := $(notdir $(SOURCES))
-OBJECTS := $(patsubst %.cpp,$(OBJDIR)/%.o,$(OBJECTS))
+OBJDIR := ./build
+OBJECTS := $(patsubst %.cpp,$(OBJDIR)/%.o,$(notdir $(SOURCES)))
 
-EXECUTABLE = build/test
+EXECUTABLE := $(OBJDIR)/main
 
 #---------------
 # Build process
 #---------------
 
-default: $(EXECUTABLE)
-
-$(EXECUTABLE): $(OBJECTS)
+$(OBJDIR)/%: examples/%.cpp $(OBJECTS)
+	@printf "$(BYELLOW)Building object file $(BCYAN)$@$(RESET)\n"
+	@mkdir -p build
+	$(CXX) -c $< $(CXXFLAGS) -o $@.o
 	@printf "$(BYELLOW)Linking executable $(BCYAN)$@$(RESET)\n"
-	$(CXX) $(LDFLAGS) $(OBJECTS) -o $@
+	$(CXX) $(LDFLAGS) $(OBJECTS) $@.o -o $@
 
+default: $(EXECUTABLE)
 
 $(OBJDIR)/%.o: %.cpp $(INCLUDES) Makefile
 	@printf "$(BYELLOW)Building object file $(BCYAN)$@$(RESET)\n"
@@ -73,12 +75,15 @@ $(OBJDIR)/%.o: %.cpp $(INCLUDES) Makefile
 	$(CXX) -c $< $(CXXFLAGS) -o $@
 
 #--------------
-# Test scripts
+# Run scripts
 #--------------
 
 # Run program:
 run: $(EXECUTABLE)
 	./$(EXECUTABLE)
+
+%: $(OBJDIR)/%
+	@if [ $@ = pi ]; then ./$< $(DIGITS); else ./$<; fi
 
 #---------------
 # Other tools
@@ -90,3 +95,4 @@ clean:
 
 # List of non-file targets:
 .PHONY: run clean default
+.PRECIOUS: $(OBJDIR)/%.o % $(OBJDIR)/%
